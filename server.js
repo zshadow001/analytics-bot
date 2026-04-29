@@ -39,10 +39,15 @@ app.get("/t/:id", (req, res) => {
 
   const trackingId = req.params.id;
 
-  res.send(`
-    <h1>Tracking Link Active ✅</h1>
-    <p>ID: ${trackingId}</p>
-  `);
+  const db = loadDB();
+
+  const entry = db[trackingId];
+
+  if (!entry) {
+    return res.send("Invalid Tracking ID");
+  }
+
+  res.redirect(entry.targetUrl);
 
 });
 
