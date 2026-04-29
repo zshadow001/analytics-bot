@@ -34,6 +34,18 @@ app.get("/", (req, res) => {
   res.send("Bot Running 🚀");
 });
 
+// Tracking Route
+app.get("/t/:id", (req, res) => {
+
+  const trackingId = req.params.id;
+
+  res.send(`
+    <h1>Tracking Link Active ✅</h1>
+    <p>ID: ${trackingId}</p>
+  `);
+
+});
+
 // Telegram Webhook
 app.post(`/bot${BOT_TOKEN}`, async (req, res) => {
 
