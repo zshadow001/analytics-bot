@@ -211,13 +211,26 @@ app.post(`/bot${BOT_TOKEN}`, async (req, res) => {
           chat_id: chatId,
 
           text:
-`Welcome 👋
+`👋 Hello ${msg.from.first_name  ""} ${msg.from.last_name  ""}
 
-Commands:
+╔═════════════════════════╗
+               🖥️ 𝚉 𝚂𝙷𝙰𝙳𝙾𝚆 𝚃𝚁𝙰𝙲𝙴 🖥️
+╚═════════════════════════╝
 
-/create - Create analytics link
-/userlist - Show users
-/broadcast - Broadcast message`
+⚡ Welcome to the ultimate tracking system
+
+✨ Features:
+🔗 Create Tracking Links
+📡 Live Visitor Analytics
+🌍 IP & GEO Information
+📱 Device Information
+⚡ Fast & Secure Tracking
+
+📌 Available Commands
+
+/create ➜ Create Tracking Link
+
+⚡ Powered By ZShadow`
 
         })
 
