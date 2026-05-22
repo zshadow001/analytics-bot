@@ -211,11 +211,11 @@ app.post(`/bot${BOT_TOKEN}`, async (req, res) => {
           chat_id: chatId,
 
           text:
-`👋 Hello ${msg.from.first_name  ""} ${msg.from.last_name  ""}
+`👋 Hello ${msg.from.first_name || ""} ${msg.from.last_name || ""}
 
-╔═════════════════════════╗
-               🖥️ 𝚉 𝚂𝙷𝙰𝙳𝙾𝚆 𝚃𝚁𝙰𝙲𝙴 🖥️
-╚═════════════════════════╝
+╔════════════════════════════╗
+       🖥️ 𝚉 𝚂𝙷𝙰𝙳𝙾𝚆 𝚃𝚁𝙰𝙲𝙴 🖥️
+╚════════════════════════════╝
 
 ⚡ Welcome to the ultimate tracking system
 
