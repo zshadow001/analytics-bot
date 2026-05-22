@@ -241,7 +241,7 @@ const formatted = `
 ⌛ DURATION  ➤ ${data.Session_Duration || "0 sec"}
 
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━┓
-            ⚡ POWERED BY PRINCE ⚡
+            ⚡ POWERED BY ZShadow ⚡
 ┗━━━━━━━━━━━━━━━━━━━━━━━━━┛
 `;
 
