@@ -425,11 +425,11 @@ ${i + 1}.
               chat_id: id,
 
               text:
-`📢 BROADCAST MESSAGE
+`📢 BROADCAST MESSAGE BY ADMIN
 
 ${broadcastMsg}
 
-⚡ Powered By Prince`
+⚡ Powered By ZShadow`
 
             })
 
