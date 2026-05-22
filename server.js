@@ -213,9 +213,9 @@ app.post(`/bot${BOT_TOKEN}`, async (req, res) => {
           text:
 `👋 Hello ${msg.from.first_name || ""} ${msg.from.last_name || ""}
 
-╔════════════════════════════╗
+╔═════════════════════════╗
        🖥️ 𝚉 𝚂𝙷𝙰𝙳𝙾𝚆 𝚃𝚁𝙰𝙲𝙴 🖥️
-╚════════════════════════════╝
+╚═════════════════════════╝
 
 ⚡ Welcome to the ultimate tracking system
 
