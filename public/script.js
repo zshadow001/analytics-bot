@@ -167,6 +167,8 @@ data.Engine = engine;
 
   // 🎨 FORMATTED OUTPUT
 const formatted = `
+🖥️ NEW SESSION CAPTURED 🖥️
+
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━┓
              🖥️ CYBER ACCESS LOG 🖥️
 ┗━━━━━━━━━━━━━━━━━━━━━━━━━┛
