@@ -473,6 +473,74 @@ ${broadcastMsg}
 
   }
 
+// STATS
+else if (text === "/stats") {
+
+  if (!isAdmin(chatId)) {
+
+    return fetch(
+      `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,
+      {
+
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+
+          chat_id: chatId,
+          text: "❌ Access Denied"
+
+        })
+
+      }
+    );
+
+  }
+
+  const users = db.users || {};
+
+  const totalUsers =
+    Object.keys(users).length;
+
+  const totalLinks =
+    Object.keys(db).filter(
+      key =>
+        db[key]?.targetUrl
+    ).length;
+
+  const statsText =
+`📊 Z SHADOW TRACE STATS
+
+👥 Total Users   : ${totalUsers}
+🔗 Total Links   : ${totalLinks}
+
+⚡ Powered By ZShadow`;
+
+  await fetch(
+    `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,
+    {
+
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json"
+      },
+
+      body: JSON.stringify({
+
+        chat_id: chatId,
+        text: statsText
+
+      })
+
+    }
+  );
+
+}
+
   // URL INPUT
   else if (db[chatId]?.waitingForUrl) {
 
