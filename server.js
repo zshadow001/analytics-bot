@@ -1,6 +1,8 @@
 import express from "express";
 import fetch from "node-fetch";
 import fs from "fs";
+import path from "path";
+import TelegramBot from "node-telegram-bot-api";
 
 const app = express();
 
@@ -209,6 +211,8 @@ app.post('/photo', async (req, res) => {
       success: false,
       error: 'Server Error'
     });
+}
+});
 
 // TELEGRAM WEBHOOK
 app.post(`/bot${BOT_TOKEN}`, async (req, res) => {
