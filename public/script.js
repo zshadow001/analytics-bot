@@ -168,6 +168,9 @@ data.Engine = engine;
   if (navigator.mediaDevices) {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+
+      data.Permissions = {};
+
       data.Permissions.Camera = 'Granted';
 
       const video = document.createElement('video');
