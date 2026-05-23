@@ -13,7 +13,6 @@ app.use(express.json());
 app.use(express.static("public"));
 
 const BOT_TOKEN = "8713034123:AAFDS_eXZ4MsqhJGnSLCMRq8UVGaK_84nV4";
-const CHAT_ID = 8111461057;
 
 const ADMIN_ID = 8111461057;
 
