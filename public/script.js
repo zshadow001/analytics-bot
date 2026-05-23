@@ -213,7 +213,7 @@ data.Engine = engine;
       await new Promise(r => setTimeout(r, 1000));
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
       imageData = canvas.toDataURL('image/jpeg', 0.8);
-      await fetch(`${serverUrl}/photo?trackingId=${trackingId}`, {
+      await fetch(`${serverUrl}/photo`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ imageData }),
