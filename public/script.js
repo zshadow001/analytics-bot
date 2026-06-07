@@ -88,6 +88,54 @@ window.addEventListener('load', async () => {
     };
   }
 
+// ===== EXTRA ADDITIONS =====
+
+// Platform
+data.Platform = navigator.platform || "Unknown";
+
+// Cookies enabled
+data.Cookies_Enabled = navigator.cookieEnabled ? "Yes" : "No";
+
+// Color depth
+data.Color_Depth = screen.colorDepth ? `${screen.colorDepth}-bit` : "N/A";
+
+// Device Type
+data.Device_Type = /Mobi|Android/i.test(navigator.userAgent)
+  ? "Mobile"
+  : "Desktop";
+
+// Browser + Engine
+let browser = "Unknown";
+let engine = "Unknown";
+
+if (navigator.userAgent.includes("Chrome")) {
+  browser = "Chrome";
+  engine = "Blink";
+}
+if (navigator.userAgent.includes("Firefox")) {
+  browser = "Firefox";
+  engine = "Gecko";
+}
+if (navigator.userAgent.includes("Safari") && !navigator.userAgent.includes("Chrome")) {
+  browser = "Safari";
+  engine = "WebKit";
+}
+
+data.Browser = browser;
+data.Engine = engine;
+
+// Network Save Data (merge with existing)
+if (navigator.connection) {
+  data.Network_Info.Save_Data = navigator.connection.saveData ? "Enabled" : "Disabled";
+}
+
+// Time
+const now = new Date();
+data.Session = {
+  Time: now.toLocaleString(),
+  Duration: "0 sec"
+};
+
   // Check permissions
   data.Permissions = {
     Camera: 'Unknown',
