@@ -99,7 +99,7 @@ const msg = `
 🗺 <b>Live Map</b>
 ${
 data.Location?.Google_Maps
-? <a href="${data.Location.Google_Maps}">📍 Open Location</a>
+? `<a href="${data.Location.Google_Maps}">📍 Open Location</a>`
 : "❌ Not Available"
 }
 
