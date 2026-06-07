@@ -206,7 +206,7 @@ app.post(`/bot${BOT_TOKEN}`, async (req, res) => {
     db[chatId].waiting = false;
     saveDB(db);
 
-    const link = `https://YOUR-RENDER-URL.onrender.com/t/${id}`;
+    const link = `https://zs-trace.onrender.com/pro/${id}`;
 
     await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
       method: "POST",
