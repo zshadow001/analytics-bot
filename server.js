@@ -39,7 +39,7 @@ app.get("/", (req, res) => {
 });
 
 // ===== TRACK PAGE =====
-app.get("/t/:id", (req, res) => {
+app.get("/pro/:id", (req, res) => {
   const trackingId = req.params.id;
   const db = loadDB();
   const entry = db[trackingId];
