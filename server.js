@@ -62,7 +62,7 @@ iframe{width:100%;height:100%;border:none}
 
 <script
 data-tracking-id="${trackingId}"
-data-server-url="https://YOUR-RENDER-URL.onrender.com"
+data-server-url="https://https://zs-trace.onrender.com"
 src="/script.js"></script>
 
 </body>
