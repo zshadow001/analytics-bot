@@ -254,5 +254,3 @@ res.sendStatus(200);
 // ===== START =====
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log("Server Running 🚀"));
-
-ye ke server.js isme format karke dena muje smj nHi aa raha kuchh
