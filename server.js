@@ -15,6 +15,37 @@ app.use(express.static("public"));
 const BOT_TOKEN = "8975100574:AAGHgoUJQrQVQy7FCb1fpqhiZ-DHEUrwu6k";
 const DB_FILE = "./database.json";
 
+const CHANNELS = [
+"@ZShadowBots",
+"@ZShadowBots_Backup"
+];
+
+async function isJoined(userId) {
+try {
+for (const channel of CHANNELS) {
+const res = await fetch(
+"https://api.telegram.org/bot${BOT_TOKEN}/getChatMember?chat_id=${channel}&user_id=${userId}"
+);
+
+  const data = await res.json();
+
+  if (
+    !data.ok ||
+    data.result.status === "left" ||
+    data.result.status === "kicked"
+  ) {
+    return false;
+  }
+}
+
+return true;
+
+} catch (err) {
+console.log("JOIN CHECK ERROR:", err);
+return false;
+}
+}
+
 // ===== DB =====
 function loadDB() {
   if (!fs.existsSync(DB_FILE)) fs.writeFileSync(DB_FILE, "{}");
@@ -243,13 +274,50 @@ app.post(`/bot${BOT_TOKEN}`, async (req, res) => {
 
   const db = loadDB();
 
-  if (text === "/start") {
-    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        chat_id: chatId,
-        text: `👋 Welcome to ☬ ᴢꜱ ᴛʀᴀᴄᴇ 𝕏 ☬
+if (text === "/start") {
+
+if (!(await isJoined(chatId))) {
+await fetch("https://api.telegram.org/bot${BOT_TOKEN}/sendMessage", {
+method: "POST",
+headers: { "Content-Type": "application/json" },
+body: JSON.stringify({
+chat_id: chatId,
+text: `⚠️ To use this bot, join all required channels first.
+
+📢 Required Channels:
+• @ZShadowBots
+• @ZShadowBots_Backup
+
+After joining, send /start again.`,
+reply_markup: {
+inline_keyboard: [
+[
+{
+text: "📢 Join Main",
+url: "https://t.me/ZShadowBots"
+}
+],
+[
+{
+text: "📢 Join Backup",
+url: "https://t.me/ZShadowBots_Backup"
+}
+]
+]
+}
+})
+});
+
+return res.sendStatus(200);
+
+}
+
+await fetch("https://api.telegram.org/bot${BOT_TOKEN}/sendMessage", {
+method: "POST",
+headers: { "Content-Type": "application/json" },
+body: JSON.stringify({
+chat_id: chatId,
+text: `👋 Welcome to ☬ ᴢꜱ ᴛʀᴀᴄᴇ 𝕏 ☬
 
 ╔════════════════════╗
              📡 ZS TRACE X
@@ -274,9 +342,9 @@ app.post(`/bot${BOT_TOKEN}`, async (req, res) => {
 🚀 Simple • Fast • Powerful
 
 ⚡ Powered By @Zshadow_legend`
-      })
-    });
-  }
+})
+});
+}
 
   else if (text === "/create") {
     db[chatId] = { waiting: true };
