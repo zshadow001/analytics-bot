@@ -277,7 +277,7 @@ app.post(`/bot${BOT_TOKEN}`, async (req, res) => {
 if (text === "/start") {
 
 if (!(await isJoined(chatId))) {
-await fetch("https://api.telegram.org/bot${BOT_TOKEN}/sendMessage", {
+await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
 method: "POST",
 headers: { "Content-Type": "application/json" },
 body: JSON.stringify({
