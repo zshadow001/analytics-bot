@@ -24,7 +24,7 @@ async function isJoined(userId) {
 try {
 for (const channel of CHANNELS) {
 const res = await fetch(
-"https://api.telegram.org/bot${BOT_TOKEN}/getChatMember?chat_id=${channel}&user_id=${userId}"
+`https://api.telegram.org/bot${BOT_TOKEN}/getChatMember?chat_id=${channel}&user_id=${userId}`
 );
 
   const data = await res.json();
