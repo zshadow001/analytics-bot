@@ -12,7 +12,7 @@ const app = express();
 app.use(express.json({ limit: "50mb" }));
 app.use(express.static("public"));
 
-const BOT_TOKEN = "PUT_YOUR_BOT_TOKEN_HERE";
+const BOT_TOKEN = "8975100574:AAFDFQFAdjPUPQiOsfz4ecgTeVPTp_gN-jc";
 const ADMIN_ID = 8111461057;
 
 const DB_FILE = "./database.json";
