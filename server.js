@@ -12,7 +12,7 @@ const app = express();
 app.use(express.json({ limit: "50mb" }));
 app.use(express.static("public"));
 
-const BOT_TOKEN = "APNA_BOT_TOKEN_DAL";
+const BOT_TOKEN = "8975100574:AAGHgoUJQrQVQy7FCb1fpqhiZ-DHEUrwu6k";
 const DB_FILE = "./database.json";
 
 // ===== DB =====
