@@ -243,13 +243,25 @@ app.post(`/bot${BOT_TOKEN}`, async (req, res) => {
 
   const db = loadDB();
 
-  if (text === "/start") {
+  const mainKeyboard = {
+    keyboard: [
+      [{ text: "🔗 Create Tracking Link" }],
+      [{ text: "ℹ️ Help" }]
+    ],
+    resize_keyboard: true,
+    persistent: true
+  };
+
+  // ===== MAIN MENU =====
+  if (text === "/start" || text === "🔙 Main Menu") {
     await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json"
+      },
       body: JSON.stringify({
         chat_id: chatId,
-        text: `👋 Welcome to ☬ ᴢꜱ ᴛʀᴀᴄᴇ 𝕏 ☬
+        text: `👋 Welcome to ☬ ᴢs ᴛʀᴀᴄᴇ 𝕏 ☬
 
 ╔════════════════════╗
              📡 ZS TRACE X
@@ -264,34 +276,64 @@ app.post(`/bot${BOT_TOKEN}`, async (req, res) => {
 • Fast Telegram Notifications
 • Easy & Reliable Management
 
-📌 Available Commands
-
-/start ➜ Start The Bot
-/create ➜ Create New Tracking Link
-
 ⚠️ For Educational & Authorized Use Only
 
 🚀 Simple • Fast • Powerful
 
-⚡ Powered By @Zshadow_legend`
+⚡ Powered By @Zshadow_legend`,
+        reply_markup: mainKeyboard
       })
     });
   }
 
-  else if (text === "/create") {
+  // ===== CREATE LINK BUTTON =====
+  else if (text === "🔗 Create Tracking Link") {
     db[chatId] = { waiting: true };
     saveDB(db);
 
     await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json"
+      },
       body: JSON.stringify({
         chat_id: chatId,
-        text: "Send target URL"
+        text: "🔗 Send the target URL:",
+        reply_markup: {
+          keyboard: [
+            [{ text: "🔙 Main Menu" }]
+          ],
+          resize_keyboard: true,
+          persistent: true
+        }
       })
     });
   }
 
+  // ===== HELP BUTTON =====
+  else if (text === "ℹ️ Help") {
+    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text: `ℹ️ Help
+
+🔗 Create Tracking Link
+Tap the button and send your target URL.
+
+📊 Analytics
+Visitor/session information collected by the existing tracker is sent to your Telegram chat.
+
+⚠️ Use this bot only for links and analytics you are authorized to track.`,
+        reply_markup: mainKeyboard
+      })
+    });
+  }
+
+  // ===== RECEIVE TARGET URL =====
   else if (db[chatId]?.waiting) {
     const id = generateId();
 
@@ -307,16 +349,22 @@ app.post(`/bot${BOT_TOKEN}`, async (req, res) => {
 
     await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json"
+      },
       body: JSON.stringify({
         chat_id: chatId,
-        text: `✅ Link Created:\n${link}`
+        text: `✅ Link Created:
+
+${link}`,
+        reply_markup: mainKeyboard
       })
     });
   }
 
   res.sendStatus(200);
 });
+      
 
 // ===== START =====
 const PORT = process.env.PORT || 3000;
